@@ -1,5 +1,6 @@
 // モジュールインポート
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const app = express();
 
@@ -22,8 +23,12 @@ const saveTodos = (todos) => {
   fs.writeFileSync(filePath, JSON.stringify(todos, null, 2));
 };
 
+// ミドルウェア
+app.use(cors());
+app.use(express.json());
+
 // エンドポイント
-app.get('/', (req, res) => {
+app.get('/todos', (req, res) => {
   const todos = loadTodos();
   res.json(todos);
 });
