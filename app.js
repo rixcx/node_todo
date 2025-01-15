@@ -32,13 +32,14 @@ const menu = `
 
 // タスクを表示するコマンド
 const displayTasks = () => {
-  const tasks = loadTodos();
-  if (tasks.length === 0) {
+  const todos = loadTodos();
+  if (todos.length === 0) {
     console.log('現在タスクはありません。');
   } else {
+    console.log('「1. タスクを表示」が選択されました。タスクを表示します。');
     console.log('--- 現在のタスク ---');
-    tasks.forEach((task, index) => {
-      console.log(`${index + 1}: ${task}`);
+    todos.forEach((todo, index) => {
+      console.log(`${index + 1}: ${todo}`);
     });
   }
   showMenu();
@@ -46,41 +47,52 @@ const displayTasks = () => {
 
 // タスクを追加する
 const addTask = () => {
-  rl.question('追加するタスクを入力してください: ', (task) => {
-    if (task.trim() === '') {
+  console.log('「2. タスクを追加」が選択されました。');
+  rl.question('追加するタスクを入力してください: ', (todo) => {
+    if (todo.trim() === '') { //空白だったら
       console.log('無効なタスクです。');
     } else {
-      const tasks = loadTodos();
-      tasks.push(task);
-      saveTasks(tasks);
-      console.log(`タスク「${task}」を追加しました。`);
+      const todos = loadTodos();
+      newTodos = [...todos, todo]
+      // todos.push(todo);
+      saveTasks(newTodos);
+      console.log(`タスク「${todo}」を追加しました。`);
     }
     showMenu();
   });
 };
 
 // タスクをJSONファイルに保存する
-const saveTasks = (tasks) => {
-  fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+const saveTasks = (todos) => {
+  // 書き込み先と書き込み内容(値、抽出キー、インデント)
+  fs.writeFileSync(filePath, JSON.stringify(todos, null, 2));
 };
 
 // タスクを削除する
 const deleteTask = () => {
-  const tasks = loadTodos();
-  if (tasks.length === 0) {
+  const todos = loadTodos();
+  if (todos.length === 0) {
     console.log('削除するタスクがありません。');
     return showMenu();
+  } else {
+    console.log('「3. タスクを削除」が選択されました。');
+    console.log('--- 現在のタスク ---');
+    todos.forEach((todo, index) => {
+      console.log(`${index + 1}: ${todo}`);
+    });
   }
-
-  displayTasks();
   rl.question('削除するタスクの番号を入力してください: ', (num) => {
+    // numは入力値 index参照用に値を調整
     const index = parseInt(num) - 1;
-    if (isNaN(index) || index < 0 || index >= tasks.length) {
+    // number型でない、0より小さい、長さより短い場合
+    if (isNaN(index) || index < 0 || index >= todos.length) {
       console.log('無効な番号です。');
     } else {
-      const deletedTask = tasks.splice(index, 1);
-      saveTasks(tasks);
-      console.log(`タスク「${deletedTask}」を削除しました。`);
+      // 配列操作 splice(対象のindex番号、取り出す個数)
+      // 取り出した要素がdeletedTodo、配列操作されたのがtodos
+      const deletedTodo = todos.splice(index, 1);
+      saveTasks(todos);
+      console.log(`タスク「${deletedTodo}」を削除しました。`);
     }
     showMenu();
   });
@@ -88,7 +100,7 @@ const deleteTask = () => {
 
 // メニュー表示
 const showMenu = () => {
-  rl.question(menu, (choice) => { //第一引数：表示内容 第二引数:返り値
+  rl.question(menu, (choice) => { // 表示内容,選択項目
     switch (choice) {
       case '1':
         displayTasks();
