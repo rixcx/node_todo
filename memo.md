@@ -9,6 +9,4 @@
 `node app.js`でアプリ起動
 
 ## 　展開
-- httpモジュールでブラウザ立ち上げて、そこで確認できるようにする？
-- Node.jsのフレームワーク「Express」を使用し、RESTful APIとして公開する
-
+- Node.jsのフレームワーク「Express」を使用し、REST APIを作成してフロントエンドと通信、表示。
