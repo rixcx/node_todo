@@ -88,11 +88,22 @@ const deleteTask = () => {
     if (isNaN(index) || index < 0 || index >= todos.length) {
       console.log('無効な番号です。');
     } else {
-      // 配列操作 splice(対象のindex番号、取り出す個数)
-      // 取り出した要素がdeletedTodo、配列操作されたのがtodos
-      const deletedTodo = todos.splice(index, 1);
-      saveTasks(todos);
-      console.log(`タスク「${deletedTodo}」を削除しました。`);
+      const selectedTodo = todos[index];
+      console.log(`タスク「${selectedTodo}」が選択されました。`);
+      rl.question('このタスクを削除します。本当によろしいですか？ yes/no: ', (answer) => {
+        if (answer === 'yes') {
+          const deletedTodo = todos.splice(index, 1);
+          saveTasks(todos);
+          console.log(`タスク「${deletedTodo}」を削除しました。`);
+          return showMenu();
+        } else if (answer === 'no') {
+          console.log('メニューに戻ります。');
+          return showMenu();
+        } else {
+          console.log('無効な回答です。');
+          return showMenu();
+        }
+      });
     }
     showMenu();
   });
