@@ -7,9 +7,10 @@ async function fetchTodos() {
   const todos = await response.json();
   
   const todoList = document.getElementById('js-todolists');
-  todos.forEach(todo => {
+  todos.forEach((todo, index) => {
     const liItem = document.createElement('li');
-    liItem.textContent = todo;
+    const innerItem = `${todo} <button onclick="deleteTodo(${index})">削除</button>`
+    liItem.innerHTML = innerItem;
     todoList.appendChild(liItem);
   });
 }
@@ -33,9 +34,14 @@ async function addTodo() {
   });
   todoInput.value = '';
 }
-  // クリック後発火
- document.getElementById('js-addtodo').addEventListener('click', addTodo);
+// クリック後発火
+document.getElementById('js-addtodo').addEventListener('click', addTodo);
 
+async function deleteTodo(index) {
+  await fetch(`${API_URL}/${index}`, {
+    method: 'DELETE'
+  });
+}
 
 // ロード後発火
 window.onload = fetchTodos;

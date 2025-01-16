@@ -46,6 +46,18 @@ app.post('/todos', (req, res) => {
   res.status(201).json({ message: 'Task added', todo: newTodo });
 });
 
+// DELETE todo削除
+app.delete('/todos/:index', (req, res) => {
+  const todos = loadTodos();
+  const index = parseInt(req.params.index, 10);
+  if (index >= 0 && index < todos.length) {
+    const deletedTodo = todos.splice(index, 1); //spliteしたものを代入
+    saveTodos(todos); //spliteされた結果でセーブ
+     res.json({ message: 'Task deleted', todo: deletedTodo });
+  } else {
+    res.status(404).json({ message: 'Task not found' });
+  }
+});
 
 // サーバーを起動
 app.listen(3000, () => {
