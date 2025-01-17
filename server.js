@@ -28,21 +28,35 @@ app.use(cors());
 app.use(express.json());
 
 // エンドポイント
-// GET 一覧表示
+// GET todo一覧表示
 app.get('/todos', (req, res) => {
-  const todos = loadTodos();
-  res.json(todos);
+  const dbTodos = loadTodos();
+  res.json(dbTodos);
 });
 
 // POST todo追加
 app.post('/todos', (req, res) => {
-  const todos = loadTodos();
-  const newTodo = req.body.todo; // キー名 'todo' を使って値を取得
-  if (!newTodo) {
+  const dbTodos = loadTodos();
+  
+  const { categoryId, todos } = req.body;
+
+  // ResponseのcategoryIdに一致するカテゴリを取得
+  const category = dbTodos.find((item) => item.categoryId === Number(categoryId));
+  if (!category) {
+    return res.status(404).json({ error: "Category not found" });
+  }
+  const todo = todos.todo;
+  if (!todo) {
     return res.status(400).json({ error: 'Task content is required' });
   }
-  todos.push(newTodo);
-  saveTodos(todos);
+  
+  const newTodo = {
+    id: Date.now(),
+    todo: todo
+  };
+  category.todos.push(newTodo);
+
+  saveTodos(dbTodos);
   res.status(201).json({ message: 'Task added', todo: newTodo });
 });
 
