@@ -17,10 +17,11 @@ async function fetchTodos() {
     
     // カテゴリ内にulを生成
     const todoList = document.createElement('ul');
+    const categoryId = category.categoryId;
     // カテゴリ内のTodoごとに回してliタグ生成
     category.todos.forEach((todo, index) => {
       const todoItem = document.createElement('li');
-      const innerItem = `${todo.todo} <button onclick="deleteTodo(${index})">削除</button>`
+      const innerItem = `${todo.todo} <button onclick="deleteTodo(${categoryId},${todo.id})">削除</button>`
       todoItem.innerHTML = innerItem;
       
       // ulに生成したliを追加
@@ -95,8 +96,8 @@ document.getElementById('js-addtodo').addEventListener('click', addTodo);
 
 
 // TodoのDELETE
-async function deleteTodo(index) {
-  await fetch(`${API_URL}/${index}`, {
+async function deleteTodo(categoryId, todoId) {
+  await fetch(`${API_URL}/${categoryId}/${todoId}`, {
     method: 'DELETE'
   });
 }

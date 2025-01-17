@@ -34,7 +34,7 @@ app.get('/todos', (req, res) => {
   res.json(dbTodos);
 });
 
-// POST todo追加
+ // POST todo追加
 app.post('/todos', (req, res) => {
   const dbTodos = loadTodos();
   
@@ -61,16 +61,24 @@ app.post('/todos', (req, res) => {
 });
 
 // DELETE todo削除
-app.delete('/todos/:index', (req, res) => {
-  const todos = loadTodos();
-  const index = parseInt(req.params.index, 10);
-  if (index >= 0 && index < todos.length) {
-    const deletedTodo = todos.splice(index, 1); //spliteしたものを代入
-    saveTodos(todos); //spliteされた結果でセーブ
-     res.json({ message: 'Task deleted', todo: deletedTodo });
-  } else {
-    res.status(404).json({ message: 'Task not found' });
+app.delete('/todos/:categoryId/:todoId', (req, res) => {
+  const dbTodos = loadTodos();
+  const { categoryId, todoId } = req.params;
+  
+  const category = dbTodos.find((item) => item.categoryId === Number(categoryId));
+  if (!category) {
+    return res.status(404).json({ error: "Category not found" });
   }
+  
+  const todo = category.todos.find((item) => item.id === Number(todoId));
+  if (!todo) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+  
+  const todoIndex = category.todos.indexOf(todo)
+  const deletedTodo = category.todos.splice(todoIndex, 1); //spliteしたものを代入
+  saveTodos(dbTodos); //spliteされた結果でセーブ
+  res.json({ message: 'Task deleted', todo: deletedTodo });
 });
 
 // サーバーを起動
