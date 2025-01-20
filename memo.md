@@ -6,7 +6,7 @@
 
 ## 使い方
 `node server.js`でAPIサーバーを起動
-`index.html`でフロント確認
+node-todo直下で`npm run dev`でフロント
 
 ## 展開
 - Node.jsのフレームワーク「Express」を使用し、REST APIを作成してフロントエンドと通信、表示。
