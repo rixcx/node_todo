@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { fetchTodos, addTodo, deleteTodo } from "@/api/api";
 
+import '@/styles/todos.scss'
+
 export const Todos = () => {
   const [todos, setTodos] = useState([]); // todosの状態管理
 
@@ -55,29 +57,31 @@ export const Todos = () => {
 
   return (
     <>
-      <div>
+      <section className="add">
+        <select className="add__select" ref={categoryRef}>
+          <option value="">--Choose an option--</option>
+          {todos.map((category) => (
+            <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
+          ))}
+        </select>
+        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
+        <button  className="add__button" onClick={() => handleAddTodo()}>Add</button>
+      </section>
+      <section className="lists">
         {todos.map((todos) => (
-          <div key={todos.categoryId}>{todos.title}
-            <ul>
+          <div key={todos.categoryId} className="category">
+            <h2 className="category__title">{todos.title}</h2>
+            <ul className="category__todos">
               {todos.todos.map((todo) => (
-                <li key={todo.id}>
-                  {todo.todo}
-                  <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>削除</button>
+                <li className="todo" key={todo.id}>
+                   <p>{todo.todo}</p>
+                  <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>Delete</button>
                 </li>
               ))}
             </ul>
           </div>
         ))}
-      </div>
-  
-      <select ref={categoryRef}>
-        <option value="">--Choose an option--</option>
-        {todos.map((category) => (
-          <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
-        ))}
-      </select>
-      <input type="text" ref={inputRef}></input>
-      <button onClick={() => handleAddTodo()}>Add</button>
+      </section>
     </>
   );
 }

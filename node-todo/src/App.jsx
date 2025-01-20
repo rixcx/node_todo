@@ -1,12 +1,14 @@
-import '@/App.css'
-
 import { Todos } from "@/components/Todos.jsx"
+
+import '@/styles/app.scss'
 
 function App() {
   return (
     <>
-      <h1>ToDo list</h1>
-      <Todos/>
+      <main className="main">
+        <h1 className="main__title">ToDo list</h1>
+        <Todos/>
+      </main>
     </>
   )
 }

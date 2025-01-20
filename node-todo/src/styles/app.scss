@@ -1,0 +1,13 @@
+@use "global/common" as common;
+
+// App
+.main {
+  max-width: 740px;
+
+  &__title {
+    margin-bottom: 0.8em;
+    font-size: 3.2em;
+    line-height: 1.1;
+    font-weight: bold;
+  }
+}
