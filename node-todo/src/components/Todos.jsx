@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { fetchTodos, addTodo, deleteTodo } from "@/api/api";
 
+import { DndContext } from '@dnd-kit/core';
+import { Draggable } from '@/components/Draggable';
+import { Droppable } from '@/components/Droppable';
+
 import '@/styles/todos.scss'
 
 export const Todos = () => {
@@ -55,8 +59,56 @@ export const Todos = () => {
   };
 
 
+
+
+
+  // dnd関連
+  const containers = ['boxA', 'boxB', 'boxC', 'boxD'];
+  const [parent, setParent] = useState(null); //親ボックスの状態管理
+  // ドラッグできるアイテム
+  const draggableMarkup = (
+    <div className="dragitem">
+      <Draggable id="draggable">Drag me</Draggable>
+    </div>
+  );
+  function handleDragEnd(event) { //ドラッグ終わったあとに発火
+    const {over} = event;
+    // containerの上にアイテムがオーバーしたら、
+    // parentに親ボックスのidをセット
+    // そうでなければnullをセット
+    setParent(over ? over.id : null);
+  }
+
+
+
+
   return (
     <>
+
+
+
+
+
+      <section className="dnd">
+        <DndContext onDragEnd={handleDragEnd}>
+          {/* parentがnullの場合は<draggableMarkup>をここに描画 */}
+          {parent === null ? draggableMarkup : null}
+
+          {containers.map((id) => (
+            <div key={id} className="droparea">
+              <Droppable key={id} id={id}>
+                {parent === id ? draggableMarkup : null}
+                Drop here
+              </Droppable>
+            </div>
+          ))}
+        </DndContext>
+      </section>
+    
+    
+    
+    
+    
       <section className="add">
         <select className="add__select" ref={categoryRef}>
           <option value="">--Choose an option--</option>

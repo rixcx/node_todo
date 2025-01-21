@@ -117,3 +117,19 @@
     }
   }
 }
+
+
+
+.dnd {
+  background-color: #f9f9f9;
+}
+
+.dragitem {
+  display: inline;
+}
+
+.droparea {
+  + div {
+    margin-top: 0.6em;
+  }
+}
