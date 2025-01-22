@@ -21,7 +21,7 @@
 - [ ] 複雑なデータの保存、もしくはDB利用（Docker?）
 - [ ] Electronでアプリケーション化
 
-## dnd-kitめも
+## dnd-kitメモ
 [ストーリーブック](https://master--5fc05e08a4a65d0021ae0bf2.chromatic.com/)  
 [公式サイト](https://docs.dndkit.com/)  
 -  droppable/-multiple-droppableが理想？  

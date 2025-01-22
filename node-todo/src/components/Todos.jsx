@@ -24,13 +24,13 @@ export const Todos = () => {
   // Todo追加
   const inputRef = useRef();
   const categoryRef = useRef();
-  const handleAddTodo =  async () => {
-    const updatedTodos = await addTodo(categoryRef.current.value, inputRef.current.value);
+  const handleAddTodo =  async (categoryValue, todoValue) => {
+    const updatedTodos = await addTodo(categoryValue, todoValue);
     if (!updatedTodos) {
       return;
     }
     // 新しくデータが生成される場合、IDなど追加の情報がサーバー側で付与されることもあるため、サーバーから最新の状態を取得するのがベスト。
-    setTodos(updatedTodos); // todosの状態を更新
+    setTodos(updatedTodos);
     inputRef.current.value = '';
     categoryRef.current.value = '';
   };
@@ -59,56 +59,55 @@ export const Todos = () => {
   };
 
 
-
-
-
   // dnd関連
-  const containers = ['boxA', 'boxB', 'boxC', 'boxD'];
-  const [parent, setParent] = useState(null); //親ボックスの状態管理
-  // ドラッグできるアイテム
-  const draggableMarkup = (
-    <div className="dragitem">
-      <Draggable id="draggable">Drag me</Draggable>
-    </div>
-  );
-  function handleDragEnd(event) { //ドラッグ終わったあとに発火
-    const {over} = event;
-    // containerの上にアイテムがオーバーしたら、
-    // parentに親ボックスのidをセット
-    // そうでなければnullをセット
-    setParent(over ? over.id : null);
+  const categoryContainer = todos;
+  
+  // ドラッグ終わったあとに発火
+  function handleDragEnd(event) {
+    const { over, active } = event;
+    if (!over || over.id === active.data.current.categoryId) return;
+    
+    // ドロップ先のカテゴリ
+    const targetCategoryId = over.id;
+    
+    // ドラッグされたアイテム
+    const draggedItemCategory = active.data.current.categoryId;
+    const draggedItemId = active.id;
+    const draggedItemvalue = active.data.current.todo;
+
+    // 元のカテゴリからtodoを削除
+    handleDeleteTodo(draggedItemCategory, draggedItemId, setTodos);
+
+    // 新しいカテゴリにtodoセット
+    handleAddTodo(targetCategoryId, draggedItemvalue)
   }
-
-
-
 
   return (
     <>
-
-
-
-
-
       <section className="dnd">
         <DndContext onDragEnd={handleDragEnd}>
-          {/* parentがnullの場合は<draggableMarkup>をここに描画 */}
-          {parent === null ? draggableMarkup : null}
-
-          {containers.map((id) => (
-            <div key={id} className="droparea">
-              <Droppable key={id} id={id}>
-                {parent === id ? draggableMarkup : null}
-                Drop here
+          {categoryContainer.map((category) => (
+            <div key={category.categoryId} className="droparea">
+              <Droppable key={category.categoryId} id={category.categoryId}>
+                <h3>{category.title}</h3>
+                {category.todos.map((todo) => (
+                  <div key={todo.id} className="dragitem">
+                    <Draggable
+                      key={todo.id}
+                      // HACK: 内容を直截dataで渡してしまっている
+                      id={todo.id}
+                      data={{categoryId: category.categoryId, todo: todo.todo}}
+                    >
+                      {todo.todo}
+                    </Draggable>
+                  </div>
+                ))}
               </Droppable>
             </div>
           ))}
         </DndContext>
       </section>
-    
-    
-    
-    
-    
+
       <section className="add">
         <select className="add__select" ref={categoryRef}>
           <option value="">--Choose an option--</option>
@@ -117,7 +116,7 @@ export const Todos = () => {
           ))}
         </select>
         <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
-        <button  className="add__button" onClick={() => handleAddTodo()}>Add</button>
+        <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
       </section>
       <section className="lists">
         {todos.map((todos) => (
