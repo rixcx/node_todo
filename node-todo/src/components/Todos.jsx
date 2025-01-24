@@ -84,26 +84,27 @@ export const Todos = () => {
 
   return (
     <>
-      <section className="dnd">
+      <section className="lists">
         <DndContext onDragEnd={handleDragEnd}>
           {categoryContainer.map((category) => (
-            <div key={category.categoryId} className="droparea">
-              <Droppable key={category.categoryId} id={category.categoryId}>
-                <h3>{category.title}</h3>
-                {category.todos.map((todo) => (
-                  <div key={todo.id} className="dragitem">
+            <Droppable key={category.categoryId} id={category.categoryId}>
+              <div key={category.categoryId}>
+                 <h2 className="category__title">{category.title}</h2>
+                 <ul className="category__todos">
+                  {category.todos.map((todo) => (
                     <Draggable
                       key={todo.id}
                       // HACK: 内容を直截dataで渡してしまっている
                       id={todo.id}
                       data={{categoryId: category.categoryId, todo: todo.todo}}
                     >
-                      {todo.todo}
+                      <span>{todo.todo}</span>
+                      <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>Delete</button>
                     </Draggable>
-                  </div>
-                ))}
-              </Droppable>
-            </div>
+                  ))}
+                </ul>
+              </div>
+            </Droppable>
           ))}
         </DndContext>
       </section>
@@ -118,6 +119,8 @@ export const Todos = () => {
         <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
         <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
       </section>
+      
+      
       <section className="lists">
         {todos.map((todos) => (
           <div key={todos.categoryId} className="category">
@@ -133,6 +136,8 @@ export const Todos = () => {
           </div>
         ))}
       </section>
+      
+      
     </>
   );
 }

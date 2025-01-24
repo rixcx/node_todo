@@ -6,22 +6,17 @@ export function Draggable(props) {
     id: props.id,
     data: props.data,
   });
-  const style = transform 
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        backgroundColor: '#666',
-        color: 'white',
-        padding: '8px',
-      }
-    : {
-        backgroundColor: '#f24e3c',
-        color: 'white',
-        padding: '8px',
-      };
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : {
+    // NOP
+  };
   
   return (
-    <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      {props.children}
-    </button>
+    <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      <div className="todo">
+        {props.children}
+      </div>
+    </li>
   );
 }

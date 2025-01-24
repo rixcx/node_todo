@@ -6,17 +6,15 @@ export function Droppable(props) {
     id: props.id,
   });
   const style = isOver ? {
-    color: 'red',
-    border: '1px red solid',
-    padding: '8px',
+    background: '#c9d3e3',
+    boxShadow: '0 0 8px rgba(131, 130, 148, 0.25)',
+    transition: 'all 0.2s ease, transform 0.2s ease'
   } : {
-    border: '1px #333 solid',
-    padding: '8px',
+    transition: 'all 0.2s ease, transform 0.2s ease'
   };
-
   
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="category">
       {props.children}
     </div>
   );

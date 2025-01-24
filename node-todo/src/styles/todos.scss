@@ -77,12 +77,18 @@
     line-height: 1.1;
     font-weight: bold;
   }
+  
+  &__todos > li {
+    + li {
+      margin-top: 0.4em;
+    }
+  }
 }
 
 .todo {
   display: flex;
   justify-content: space-between;
-  padding: 0.6em;
+  padding: 1em;
   background-color: #fff;
   border-radius: 6px;
   border: 1px solid transparent;
@@ -90,11 +96,7 @@
     transition: border-color 0.3s ease, transform 0.2s ease;
   &:hover {
     border-color: #bfbfbf;
-    // box-shadow: 0 0 8px rgba(142, 142, 142, 0.25);
-  }
-  
-  + li.todo {
-    margin-top: 0.8em;
+    box-shadow: 0 0 8px rgba(142, 142, 142, 0.25);
   }
 
   > p, button {
