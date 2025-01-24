@@ -34,6 +34,13 @@ export const Todos = () => {
     categoryRef.current.value = '';
   };
 
+  // Enter受付
+  const [isComposing, setIsComposing] = useState(false);
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !isComposing) {
+      handleAddTodo(categoryRef.current.value, inputRef.current.value);
+    }
+  };
 
   // Todo削除
   const handleDeleteTodo = (categoryId, todoId, setTodos) => {
@@ -100,7 +107,7 @@ export const Todos = () => {
             <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
           ))}
         </select>
-        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
+        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef} onKeyDown={handleKeyDown} onCompositionStart={() => setIsComposing(true)} onCompositionEnd={() => setIsComposing(false)}></input>
         <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
       </section>
 
