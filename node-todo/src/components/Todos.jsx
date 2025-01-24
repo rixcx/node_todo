@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { fetchTodos, addTodo, deleteTodo } from "@/api/api";
 
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { Draggable } from '@/components/Draggable';
 import { Droppable } from '@/components/Droppable';
 
@@ -19,7 +19,6 @@ export const Todos = () => {
     };
     loadTodos();
   }, []);
-
 
   // Todo追加
   const inputRef = useRef();
@@ -61,7 +60,17 @@ export const Todos = () => {
 
   // dnd関連
   const categoryContainer = todos;
-  
+
+  // 発火のタイミング
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 5,
+    },
+  });
+  const sensors = useSensors(
+    mouseSensor,
+  );
+
   // ドラッグ終わったあとに発火
   function handleDragEnd(event) {
     const { over, active } = event;
@@ -79,13 +88,24 @@ export const Todos = () => {
     handleDeleteTodo(draggedItemCategory, draggedItemId, setTodos);
 
     // 新しいカテゴリにtodoセット
-    handleAddTodo(targetCategoryId, draggedItemvalue)
+    handleAddTodo(targetCategoryId, draggedItemvalue);
   }
 
   return (
     <>
+      <section className="add">
+        <select className="add__select" ref={categoryRef}>
+          <option value="">--Choose an option--</option>
+          {todos.map((category) => (
+            <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
+          ))}
+        </select>
+        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
+        <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
+      </section>
+
       <section className="lists">
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           {categoryContainer.map((category) => (
             <Droppable key={category.categoryId} id={category.categoryId}>
               <div key={category.categoryId}>
@@ -99,7 +119,7 @@ export const Todos = () => {
                       data={{categoryId: category.categoryId, todo: todo.todo}}
                     >
                       <span>{todo.todo}</span>
-                      <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>Delete</button>
+                      <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)}>Delete</button>
                     </Draggable>
                   ))}
                 </ul>
@@ -108,36 +128,6 @@ export const Todos = () => {
           ))}
         </DndContext>
       </section>
-
-      <section className="add">
-        <select className="add__select" ref={categoryRef}>
-          <option value="">--Choose an option--</option>
-          {todos.map((category) => (
-            <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
-          ))}
-        </select>
-        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
-        <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
-      </section>
-      
-      
-      <section className="lists">
-        {todos.map((todos) => (
-          <div key={todos.categoryId} className="category">
-            <h2 className="category__title">{todos.title}</h2>
-            <ul className="category__todos">
-              {todos.todos.map((todo) => (
-                <li className="todo" key={todo.id}>
-                   <p>{todo.todo}</p>
-                  <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>Delete</button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </section>
-      
-      
     </>
   );
 }
