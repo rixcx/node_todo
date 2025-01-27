@@ -2,10 +2,35 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const path = require("path");
 const app = express();
 
 // jsonのパス
 const filePath = './todolist.json';
+
+const JSON_FILE_PATH = path.join(__dirname, "todolist.json");
+const JSON_DEFAULT_FILE_PATH = path.join(__dirname, "todolist_default.json");
+
+
+// JSONファイルのリセット関数
+const resetJsonFile = () => {
+  const readTodos = fs.readFileSync(JSON_DEFAULT_FILE_PATH, 'utf8');
+  const resetTodos = JSON.parse(readTodos);
+
+  fs.writeFile(JSON_FILE_PATH, JSON.stringify(resetTodos, null, 2), (err) => {
+    if (err) {
+      console.error("JSONファイルのリセットに失敗しました:", err);
+    } else {
+      console.log("JSONファイルがリセットされました:", new Date().toISOString());
+    }
+  });
+};
+
+// アプリ起動時にデータをリセット
+// resetJsonFile();
+
+// 一定時間ごとにリセット
+setInterval(resetJsonFile, 10 * 60 * 1000);
 
 // タスクをJSONファイルから読み込む
 const loadTodos = () => {

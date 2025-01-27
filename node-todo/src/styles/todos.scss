@@ -123,8 +123,12 @@
     transform: translateY(-3px);
   }
 
-  > p, button {
+  > span, button {
     display: inline-block;
+  }
+  
+  > span {
+    margin-right: 1.2em;
   }
   
   > button {
