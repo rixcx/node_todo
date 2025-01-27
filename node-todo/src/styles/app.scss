@@ -2,7 +2,7 @@
 
 // App
 .main {
-  max-width: 740px;
+  min-width: calc(780px - 64px);
 
   &__title {
     margin-bottom: 0.8em;

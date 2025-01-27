@@ -8,6 +8,8 @@ export function Draggable(props) {
   });
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    position: `relative`,
+    zIndex: `999`
   } : {
     // NOP
   };

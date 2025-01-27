@@ -102,7 +102,7 @@ export const Todos = () => {
     <>
       <section className="add">
         <select className="add__select" ref={categoryRef}>
-          <option value="">--Choose an option--</option>
+          <option value="">--Choose category--</option>
           {todos.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
           ))}
@@ -114,9 +114,9 @@ export const Todos = () => {
       <section className="lists">
         <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
           {categoryContainer.map((category) => (
-            <Droppable key={category.categoryId} id={category.categoryId}>
+            <Droppable key={category.categoryId} id={category.categoryId} categoryId={category.categoryId}>
               <div key={category.categoryId}>
-                 <h2 className="category__title">{category.title}</h2>
+                 <h2 className={`category__title category__title--${category.categoryId}`}>{category.title}</h2>
                  <ul className="category__todos">
                   {category.todos.map((todo) => (
                     <Draggable
@@ -126,7 +126,7 @@ export const Todos = () => {
                       data={{categoryId: category.categoryId, todo: todo.todo}}
                     >
                       <span>{todo.todo}</span>
-                      <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)}>Delete</button>
+                      <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)} />
                     </Draggable>
                   ))}
                 </ul>
