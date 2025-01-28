@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { fetchTodos, addTodo, deleteTodo } from "@/api/api";
 
+import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { Draggable } from '@/components/Draggable';
+import { Droppable } from '@/components/Droppable';
+
 import '@/styles/todos.scss'
 
 export const Todos = () => {
@@ -16,21 +20,27 @@ export const Todos = () => {
     loadTodos();
   }, []);
 
-
   // Todo追加
   const inputRef = useRef();
   const categoryRef = useRef();
-  const handleAddTodo =  async () => {
-    const updatedTodos = await addTodo(categoryRef.current.value, inputRef.current.value);
+  const handleAddTodo =  async (categoryValue, todoValue) => {
+    const updatedTodos = await addTodo(categoryValue, todoValue);
     if (!updatedTodos) {
       return;
     }
     // 新しくデータが生成される場合、IDなど追加の情報がサーバー側で付与されることもあるため、サーバーから最新の状態を取得するのがベスト。
-    setTodos(updatedTodos); // todosの状態を更新
+    setTodos(updatedTodos);
     inputRef.current.value = '';
     categoryRef.current.value = '';
   };
 
+  // Enter受付
+  const [isComposing, setIsComposing] = useState(false);
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !isComposing) {
+      handleAddTodo(categoryRef.current.value, inputRef.current.value);
+    }
+  };
 
   // Todo削除
   const handleDeleteTodo = (categoryId, todoId, setTodos) => {
@@ -55,32 +65,75 @@ export const Todos = () => {
   };
 
 
+  // dnd関連
+  const categoryContainer = todos;
+
+  // 発火のタイミング
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 5,
+    },
+  });
+  const sensors = useSensors(
+    mouseSensor,
+  );
+
+  // ドラッグ終わったあとに発火
+  function handleDragEnd(event) {
+    const { over, active } = event;
+    if (!over || over.id === active.data.current.categoryId) return;
+    
+    // ドロップ先のカテゴリ
+    const targetCategoryId = over.id;
+    
+    // ドラッグされたアイテム
+    const draggedItemCategory = active.data.current.categoryId;
+    const draggedItemId = active.id;
+    const draggedItemvalue = active.data.current.todo;
+
+    // 元のカテゴリからtodoを削除
+    handleDeleteTodo(draggedItemCategory, draggedItemId, setTodos);
+
+    // 新しいカテゴリにtodoセット
+    handleAddTodo(targetCategoryId, draggedItemvalue);
+  }
+
   return (
     <>
       <section className="add">
         <select className="add__select" ref={categoryRef}>
-          <option value="">--Choose an option--</option>
+          <option value="">--Choose category--</option>
           {todos.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>{category.title}</option>
           ))}
         </select>
-        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef}></input>
-        <button  className="add__button" onClick={() => handleAddTodo()}>Add</button>
+        <input className="add__input" type="text" placeholder="write your todo" ref={inputRef} onKeyDown={handleKeyDown} onCompositionStart={() => setIsComposing(true)} onCompositionEnd={() => setIsComposing(false)}></input>
+        <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
       </section>
+
       <section className="lists">
-        {todos.map((todos) => (
-          <div key={todos.categoryId} className="category">
-            <h2 className="category__title">{todos.title}</h2>
-            <ul className="category__todos">
-              {todos.todos.map((todo) => (
-                <li className="todo" key={todo.id}>
-                   <p>{todo.todo}</p>
-                  <button onClick={() => handleDeleteTodo(todos.categoryId, todo.id, setTodos)}>Delete</button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+          {categoryContainer.map((category) => (
+            <Droppable key={category.categoryId} id={category.categoryId} categoryId={category.categoryId}>
+              <div key={category.categoryId}>
+                 <h2 className={`category__title category__title--${category.categoryId}`}>{category.title}</h2>
+                 <ul className="category__todos">
+                  {category.todos.map((todo) => (
+                    <Draggable
+                      key={todo.id}
+                      // HACK: 内容を直截dataで渡してしまっている
+                      id={todo.id}
+                      data={{categoryId: category.categoryId, todo: todo.todo}}
+                    >
+                      <span>{todo.todo}</span>
+                      <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)} />
+                    </Draggable>
+                  ))}
+                </ul>
+              </div>
+            </Droppable>
+          ))}
+        </DndContext>
       </section>
     </>
   );
