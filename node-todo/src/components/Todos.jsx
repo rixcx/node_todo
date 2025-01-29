@@ -9,15 +9,28 @@ import '@/styles/todos.scss'
 
 export const Todos = () => {
   const [todos, setTodos] = useState([]); // todosの状態管理
-
+  const [isLoading, setIsLoading] = useState(false);
 
   // Todo一覧の読み込み
-  useEffect(() => { // 初回読み込み時に関数発火
-    const loadTodos = async () => {
-      const data = await fetchTodos();
-      setTodos(data);
-    };
-    loadTodos();
+  useEffect(() => {
+    setIsLoading(true);
+    const cachedTodos = sessionStorage.getItem("todos");
+    if (cachedTodos) {
+      setTodos(JSON.parse(cachedTodos));
+      setIsLoading(false);
+    }
+
+    fetchTodos()
+      .then((data) => {
+        setTodos(data);
+        sessionStorage.setItem("todos", JSON.stringify(data));
+      })
+      .catch((error) => {
+        console.error("Error fetching todos:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   // Todo追加
@@ -110,31 +123,37 @@ export const Todos = () => {
         <input className="add__input" type="text" placeholder="write your todo" ref={inputRef} onKeyDown={handleKeyDown} onCompositionStart={() => setIsComposing(true)} onCompositionEnd={() => setIsComposing(false)}></input>
         <button  className="add__button" onClick={() => handleAddTodo(categoryRef.current.value, inputRef.current.value)}>Add</button>
       </section>
-
-      <section className="lists">
-        <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-          {categoryContainer.map((category) => (
-            <Droppable key={category.categoryId} id={category.categoryId} categoryId={category.categoryId}>
-              <div key={category.categoryId}>
-                 <h2 className={`category__title category__title--${category.categoryId}`}>{category.title}</h2>
-                 <ul className="category__todos">
-                  {category.todos.map((todo) => (
-                    <Draggable
-                      key={todo.id}
-                      // HACK: 内容を直截dataで渡してしまっている
-                      id={todo.id}
-                      data={{categoryId: category.categoryId, todo: todo.todo}}
-                    >
-                      <span>{todo.todo}</span>
-                      <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)} />
-                    </Draggable>
-                  ))}
-                </ul>
-              </div>
-            </Droppable>
-          ))}
-        </DndContext>
-      </section>
+      
+      {isLoading ? (
+        <p className="spinner">
+          <span></span> Loading your todos...
+        </p>
+        ) : (
+          <section className="lists">
+            <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+              {categoryContainer.map((category) => (
+                <Droppable key={category.categoryId} id={category.categoryId} categoryId={category.categoryId}>
+                  <div key={category.categoryId}>
+                    <h2 className={`category__title category__title--${category.categoryId}`}>{category.title}</h2>
+                    <ul className="category__todos">
+                      {category.todos.map((todo) => (
+                        <Draggable
+                          key={todo.id}
+                          // HACK: 内容を直截dataで渡してしまっている
+                          id={todo.id}
+                          data={{categoryId: category.categoryId, todo: todo.todo}}
+                        >
+                          <span>{todo.todo}</span>
+                          <button onClick={() => handleDeleteTodo(category.categoryId, todo.id, setTodos)} />
+                        </Draggable>
+                      ))}
+                    </ul>
+                  </div>
+                </Droppable>
+              ))}
+            </DndContext>
+          </section>
+        )}
     </>
   );
 }
